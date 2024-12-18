@@ -1,0 +1,24 @@
+#include<stdio.h>
+void main() {
+    int nf,i,ack;
+    printf("Enter number of frames: ");
+    scanf("%d",&nf);
+    for(i=0;i<nf;i++) {
+        printf("sender: transmitting frame %d\n",i);
+    }
+    printf("Enter last acknowledgemnet: ");
+    scanf("%d",&ack);
+    for(int i=0;i<=ack;i++) {
+        printf("reciver: transmitting from %d\n",i);
+    }
+    int lstr=ack;
+    while(ack!=nf-1) {
+        printf("SENDER:Retransmitting from %d\n",ack+1);
+        printf("Enter last recived acknowledgemnet: ");
+        scanf("%d",&ack);
+        for(i=lstr+1;i<=ack;i++) {
+            printf("RECOVER: from %d is recived\n",i);
+        }
+        lstr=ack;
+    }
+}
