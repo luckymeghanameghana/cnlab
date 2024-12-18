@@ -1,89 +1,94 @@
-
 #include<stdio.h>
-
-void division(int temp[],int gen[],int n,int r)
-{
- for(int i=0;i<n;i++)
- {
-     if (gen[0]==temp[i])
-     {
-         for(int j=0,k=i;j<r+1;j++,k++)
-         {
-            temp[k]=temp[k]^gen[j];
-         }       
-     } 
-     
- }
-    
-}
+#include<conio.h>
+#define INFINITY 9999
+#define MAX 10
+ 
+void dijkstra(int G[MAX][MAX],int n,int startnode);
+ 
 int main()
 {
-    int n,r,message[50],gen[50],temp[50];
+	int G[MAX][MAX],i,j,n,u;
+	printf("Enter no. of vertices:");
+	scanf("%d",&n);
+	printf("\nEnter the adjacency matrix:\n");
+	
+	for(i=0;i<n;i++)
+		for(j=0;j<n;j++)
+			scanf("%d",&G[i][j]);
+	
+	printf("\nEnter the starting node:");
+	scanf("%d",&u);
+	dijkstra(G,n,u);
+	
+	return 0;
+}
  
-    printf("Enter the number of frame bits : ");
- scanf("%d",&n);
- printf("Enter the frame : ");
- for(int i=0;i<n;i++)
-     scanf("%d",&message[i]);
- printf("Enter the number of generator bits : ");
- scanf("%d",&r);
+void dijkstra(int G[MAX][MAX],int n,int startnode)
+{
  
- printf("Enter the generator : ");
- for(int i=0;i<r;i++)
-     scanf("%d",&gen[i]);
- r--;
- for(int i=0;i<r;i++)
-     message[n+i] = 0;
- for(int i=0;i<n+r;i++)
-     temp[i] = message[i];
- division(temp,gen,n,r);
- printf("CRC : ");
- for(int i=0;i<r;i++)
- {
-     printf("%d ",temp[n+i]);
-     message[n+i] = temp[n+i];
- }
- printf("\nTransmitted Message : ");
- for(int i=0;i<n+r;i++)
-     printf("%d ",message[i]);
- printf("\nDecoding ");
- for(int i=0;i<n+r;i++)
-     temp[i] = message[i];
- division(temp,gen,n,r);
- for(int i=0;i<r;i++)
- {
-     if(temp[n+i])
-     {
-         printf("Error detected in received message.");
-         return 0;
-     } 
-     
- }
- printf("\nNo error in received Message.");
- printf("\nAfter decoding crc is ");
- for(int i=0;i<r;i++)
- {
-     printf("%d ",temp[n+i]);
- }
-printf("\nReceived Message : ");
- for(int i=0;i<n;i++)
-     printf("%d ",message[i]);
- return 0;
+	int cost[MAX][MAX],distance[MAX],pred[MAX];
+	int visited[MAX],count,mindistance,nextnode,i,j;
+	
+	//pred[] stores the predecessor of each node
+	//count gives the number of nodes seen so far
+	//create the cost matrix
+	for(i=0;i<n;i++)
+		for(j=0;j<n;j++)
+			if(G[i][j]==0)
+				cost[i][j]=INFINITY;
+			else
+				cost[i][j]=G[i][j];
+	
+	//initialize pred[],distance[] and visited[]
+	for(i=0;i<n;i++)
+	{
+		distance[i]=cost[startnode][i];
+		pred[i]=startnode;
+		visited[i]=0;
+	}
+	
+	distance[startnode]=0;
+	visited[startnode]=1;
+	count=1;
+	
+	while(count<n-1)
+	{
+		mindistance=INFINITY;
+		
+		//nextnode gives the node at minimum distance
+		for(i=0;i<n;i++)
+			if(distance[i]<mindistance&&!visited[i])
+			{
+				mindistance=distance[i];
+				nextnode=i;
+			}
+			
+			//check if a better path exists through nextnode			
+			visited[nextnode]=1;
+			for(i=0;i<n;i++)
+				if(!visited[i])
+					if(mindistance+cost[nextnode][i]<distance[i])
+					{
+						distance[i]=mindistance+cost[nextnode][i];
+						pred[i]=nextnode;
+					}
+		count++;
+	}
+ 
+	//print the path and distance of each node
+	for(i=0;i<n;i++)
+		if(i!=startnode)
+		{
+			printf("\nDistance of node%d=%d",i,distance[i]);
+			printf("\nPath=%d",i);
+			
+			j=i;
+			do
+			{
+				j=pred[j];
+				printf("<-%d",j);
+			}while(j!=startnode);
+	}
 }
 
 
-
-EXECUTION:
-
-Enter the number of frame bits : 4                                                                                
-Enter the frame : 1 0 0 1                                                                                         
-Enter the number of generator bits : 4                                                                            
-Enter the generator : 1 0 1 1                                                                                     
-CRC : 1 1 0                                                                                                       
-Transmitted Message : 1 0 0 1 1 1 0                                                                               
-Decoding                                                                                                          
-No error in received Message.                                                                                     
-After decoding crc is 0 0 0                                                                                       
-Received Message : 1 0 0 1  
-
-Executed Successfully.
